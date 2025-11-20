@@ -1,5 +1,13 @@
 # ofd.js
 
+
+### 修改的核心内容
+本项目基于开源协议 Apache-2.0 license 在允许范围内进行如下修改：
+
+1. 去除水印，包括但不限于：背景纯文字testdemo水印，背景图片DEMO水印，前景SVG格式Test水印。
+2. 去除组件的倒计时提示以及到期之后的功能限制等措施。
+
+
 ### 在使用ofd.js前请务必悉知  [《ofd.js免责声明》](https://github.com/DLTech21/ofd.js/blob/master/%E5%85%8D%E8%B4%A3%E5%A3%B0%E6%98%8E.md)
 
 ![-](https://img.shields.io/badge/language-js-orange.svg) [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
@@ -9,13 +17,6 @@
 效果： 
 ![示例](./ofd.jpg)
 
-小程序OFD验签示例
-
-![示例](./gh_6711026c0ea7_258.jpg)
-
-微信
-
-![示例](./wx.jpg)
 
 
 ```md
@@ -63,11 +64,6 @@ const div = renderOfdByIndex(documentIndex, pageIndex, width)
 
 ```
 
-## ofd推荐项目
-[OFD Reader & Writer](https://github.com/Trisia/ofdrw)
-
-## 参与贡献
-发挥人人为我，我为人人的优良传统，多做pr~~~
 
 ## Project setup
 ```
@@ -92,8 +88,4 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-### 项目关注度
 
-> 项目获得 Star曲线
-
-[![Stargazers over time](https://starchart.cc/DLTech21/ofd.js.svg)](https://starchart.cc/DLTech21/ofd.js)

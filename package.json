@@ -66,11 +66,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/DLTech21/ofd.js"
+    "url": "https://github.com/zhiyuan411/ofd.js-free"
   },
   "license": "Apache-2.0",
   "funding": {
     "type": "paypal",
-    "url": "https://paypal.me/donaltong"
+    "url": ""
   }
 }
