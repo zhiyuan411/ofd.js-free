@@ -150,11 +150,8 @@ var Dict = (function DictClosure() {
     },
 
     set: function Dict_set(key, value) {
-      if (
-        (typeof PDFJSDev === "undefined" ||
-          PDFJSDev.test("!PRODUCTION || TESTING")) &&
-        value === undefined
-      ) {
+      // Fixed: Removed PDFJSDev development check
+      if (value === undefined) {
         unreachable('Dict.set: The "value" cannot be undefined.');
       }
       this._map[key] = value;
@@ -346,15 +343,11 @@ function isRef(v) {
 }
 
 function isRefsEqual(v1, v2) {
-  if (
-    typeof PDFJSDev === "undefined" ||
-    PDFJSDev.test("!PRODUCTION || TESTING")
-  ) {
-    assert(
-      v1 instanceof Ref && v2 instanceof Ref,
-      "isRefsEqual: Both parameters should be `Ref`s."
-    );
-  }
+  // Fixed: Removed PDFJSDev development assertion check
+  assert(
+    v1 instanceof Ref && v2 instanceof Ref,
+    "isRefsEqual: Both parameters should be `Ref`s."
+  );
   return v1.num === v2.num && v1.gen === v2.gen;
 }
 

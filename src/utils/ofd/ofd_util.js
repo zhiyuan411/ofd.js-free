@@ -25,19 +25,21 @@ export const convertPathAbbreviatedDatatoPoint = abbreviatedData => {
     let i = 0;
     while (i < array.length) {
         if (array[i] === 'M' || array[i] === 'S') {
+            // 健壮性修复：添加边界检查
             let point = {
                 'type': 'M',
-                'x': parseFloat(array[i + 1]),
-                'y': parseFloat(array[i + 2])
+                'x': (i + 1 < array.length) ? parseFloat(array[i + 1]) || 0 : 0,
+                'y': (i + 2 < array.length) ? parseFloat(array[i + 2]) || 0 : 0
             }
             i = i + 3;
             pointList.push(point);
         }
         if (array[i] === 'L') {
+            // 健壮性修复：添加边界检查
             let point = {
                 'type': 'L',
-                'x': parseFloat(array[i + 1]),
-                'y': parseFloat(array[i + 2])
+                'x': (i + 1 < array.length) ? parseFloat(array[i + 1]) || 0 : 0,
+                'y': (i + 2 < array.length) ? parseFloat(array[i + 2]) || 0 : 0
             }
             i = i + 3;
             pointList.push(point);
@@ -50,14 +52,15 @@ export const convertPathAbbreviatedDatatoPoint = abbreviatedData => {
             pointList.push(point)
             i++;
         } else if (array[i] === 'B') {
+            // 健壮性修复：添加边界检查和默认值处理
             let point = {
                 'type': 'B',
-                'x1': parseFloat(array[i + 1]),
-                'y1': parseFloat(array[i + 2]),
-                'x2': parseFloat(array[i + 3]),
-                'y2': parseFloat(array[i + 4]),
-                'x3': parseFloat(array[i + 5]),
-                'y3': parseFloat(array[i + 6])
+                'x1': (i + 1 < array.length) ? parseFloat(array[i + 1]) || 0 : 0,
+                'y1': (i + 2 < array.length) ? parseFloat(array[i + 2]) || 0 : 0,
+                'x2': (i + 3 < array.length) ? parseFloat(array[i + 3]) || 0 : 0,
+                'y2': (i + 4 < array.length) ? parseFloat(array[i + 4]) || 0 : 0,
+                'x3': (i + 5 < array.length) ? parseFloat(array[i + 5]) || 0 : 0,
+                'y3': (i + 6 < array.length) ? parseFloat(array[i + 6]) || 0 : 0
             }
             i = i + 7;
             pointList.push(point);

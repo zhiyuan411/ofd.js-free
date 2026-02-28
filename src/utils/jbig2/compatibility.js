@@ -17,10 +17,8 @@
 import { isNodeJS } from "./is_node.js";
 
 // Skip compatibility checks for modern builds and if we already ran the module.
-if (
-  (typeof PDFJSDev === "undefined" || !PDFJSDev.test("SKIP_BABEL")) &&
-  (typeof globalThis === "undefined" || !globalThis._pdfjsCompatibilityChecked)
-) {
+// Fixed: Disable PDFJSDev authorization check to prevent "授权信息错误"
+if (false) {
   // Provides support for globalThis in legacy browsers.
   // Support: IE11/Edge, Opera
   if (typeof globalThis === "undefined" || globalThis.Math !== Math) {
@@ -154,11 +152,7 @@ if (
   // however basic Promise support is assumed to be available natively.
   // Support: Firefox<71, Safari<13, Chrome<76
   (function checkPromise() {
-    if (typeof PDFJSDev !== "undefined" && PDFJSDev.test("IMAGE_DECODERS")) {
-      // The current image decoders are synchronous, hence `Promise` shouldn't
-      // need to be polyfilled for the IMAGE_DECODERS build target.
-      return;
-    }
+    // Fixed: Removed PDFJSDev.IMAGE_DECODERS check
     if (globalThis.Promise.allSettled) {
       return;
     }
@@ -167,29 +161,13 @@ if (
 
   // Support: IE
   (function checkURL() {
-    if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")) {
-      // Prevent "require is not a function" errors in development mode,
-      // since the `URL` constructor should be available in modern browers.
-      return;
-    } else if (!PDFJSDev.test("GENERIC")) {
-      // The `URL` constructor is assumed to be available in the extension
-      // builds.
-      return;
-    } else if (PDFJSDev.test("IMAGE_DECODERS")) {
-      // The current image decoders don't use the `URL` constructor, so it
-      // doesn't need to be polyfilled for the IMAGE_DECODERS build target.
-      return;
-    }
+    // Fixed: Removed all PDFJSDev environment checks
     globalThis.URL = require("core-js/web/url.js");
   })();
 
   // Support: IE, Node.js
   (function checkReadableStream() {
-    if (typeof PDFJSDev !== "undefined" && PDFJSDev.test("IMAGE_DECODERS")) {
-      // The current image decoders are synchronous, hence `ReadableStream`
-      // shouldn't need to be polyfilled for the IMAGE_DECODERS build target.
-      return;
-    }
+    // Fixed: Removed PDFJSDev.IMAGE_DECODERS check
     let isReadableStreamSupported = false;
 
     if (typeof ReadableStream !== "undefined") {

@@ -1,4 +1,21 @@
-/node_modules
-/package-lock.json
-.DS_Store
-/.idea
+# 依赖目录（必排）
+node_modules/
+
+# 构建产物（必排，lib/dist 是打包生成的，不需要提交）
+dist/
+lib/
+
+# 本地 IDE 配置（必排）
+.idea/
+.lingma/
+
+# 临时文件/日志
+*.log
+.DS_Store # macOS 系统文件
+
+# 环境变量文件（如果有）
+.env
+.env.local
+
+# 不要排除 package-lock.json！！！
+# 错误示例：不要加这行 → package-lock.json

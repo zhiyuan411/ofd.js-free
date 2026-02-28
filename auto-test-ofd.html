@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OFD文件自动测试</title>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- OFD.js -->
+  <script src="./lib/ofd.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#64748b',
+            accent: '#0ea5e9',
+            neutral: '#f1f5f9',
+            'neutral-dark': '#334155',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .transition-all-300 {
+        transition: all 300ms ease-in-out;
+      }
+      .scrollbar-thin {
+        scrollbar-width: thin;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .bg-gradient-blue {
+        background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-file-text-o text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-gray-800">OFD文件自动测试</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要内容区域 -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- 测试进度 -->
+    <div class="bg-white rounded-lg shadow-card p-4 mb-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">测试进度</h2>
+      <div class="flex items-center space-x-4">
+        <div class="flex-1">
+          <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div id="progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+        <span id="progress-text" class="text-sm text-gray-600">准备中...</span>
+      </div>
+    </div>
+
+    <!-- 结果展示区域 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="results-container">
+      <!-- 结果将动态生成 -->
+    </div>
+  </main>
+
+  <!-- 底部信息 -->
+  <footer class="bg-white shadow-sm mt-auto">
+    <div class="container mx-auto px-4 py-4 text-center text-sm text-gray-500">
+      <p>© 2025 OFD文件自动测试 | 使用 <a href="https://github.com/DLTech21/ofd.js" target="_blank" class="text-primary hover:underline">ofd.js</a> 构建</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 样本文件列表
+      const sampleFiles = [
+        { name: '2.ofd', path: './public/2.ofd' },
+        { name: '999.ofd', path: './public/999.ofd' },
+        { name: 'h.ofd', path: './public/h.ofd' },
+        { name: 'n.ofd', path: './public/n.ofd' }
+      ];
+
+      // 全局变量
+      const resultsContainer = document.getElementById('results-container');
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      
+      let completedTests = 0;
+      const totalTests = sampleFiles.length;
+
+      // 初始化
+      initAutoTest();
+
+      // 初始化自动测试
+      function initAutoTest() {
+        console.log('🚀 开始自动测试OFD文件...');
+        updateProgress(0, `开始测试 ${totalTests} 个文件`);
+        
+        // 逐个测试文件
+        sampleFiles.forEach((fileInfo, index) => {
+          setTimeout(() => {
+            testOfdFile(fileInfo, index);
+          }, index * 1000); // 每个文件间隔1秒开始测试
+        });
+      }
+
+      // 测试单个OFD文件
+      function testOfdFile(fileInfo, index) {
+        console.log(`🔍 正在测试文件: ${fileInfo.name}`);
+        updateProgress(completedTests, `正在测试: ${fileInfo.name}`);
+
+        // 创建结果卡片
+        const resultCard = createResultCard(fileInfo, index);
+        resultsContainer.appendChild(resultCard);
+
+        // 获取文件
+        fetch(fileInfo.path)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.arrayBuffer();
+          })
+          .then(arrayBuffer => {
+            // 确保ofd库已正确加载
+            if (!window.ofd || typeof window.ofd.parseOfdDocument !== 'function') {
+              throw new Error('ofd.js库未正确加载');
+            }
+
+            console.log(`✅ 成功获取文件: ${fileInfo.name}`, arrayBuffer.byteLength, 'bytes');
+
+            // 解析OFD文件
+            window.ofd.parseOfdDocument({
+              ofd: arrayBuffer,
+              success(parsedDocs) {
+                try {
+                  console.log(`✅ ${fileInfo.name} 解析成功`, parsedDocs);
+                  
+                  // 获取第一个文档对象
+                  const ofdDoc = parsedDocs[0];
+                  if (!ofdDoc || !ofdDoc.pages) {
+                    throw new Error('解析的文档对象无效');
+                  }
+                  
+                  // 渲染文档 - 正确传递解析后的文档对象
+                  const divs = window.ofd.renderOfd(400, ofdDoc); // 宽度400px, 传入文档对象
+                  
+                  if (!divs || divs.length === 0) {
+                    throw new Error('未生成任何页面');
+                  }
+
+                  // 更新结果卡片
+                  updateResultCard(resultCard, 'success', fileInfo, divs);
+                  
+                  // 更新进度
+                  completedTests++;
+                  updateProgress(completedTests, `已完成 ${completedTests}/${totalTests} 个文件`);
+                  
+                } catch (renderError) {
+                  console.error(`❌ ${fileInfo.name} 渲染失败:`, renderError);
+                  updateResultCard(resultCard, 'error', fileInfo, null, `渲染失败: ${renderError.message}`);
+                  
+                  completedTests++;
+                  updateProgress(completedTests, `已完成 ${completedTests}/${totalTests} 个文件`);
+                }
+              },
+              fail(error) {
+                console.error(`❌ ${fileInfo.name} 解析失败:`, error);
+                updateResultCard(resultCard, 'error', fileInfo, null, `解析失败: ${error.message || '未知错误'}`);
+                
+                completedTests++;
+                updateProgress(completedTests, `已完成 ${completedTests}/${totalTests} 个文件`);
+              }
+            });
+          })
+          .catch(fetchError => {
+            console.error(`❌ 获取文件 ${fileInfo.name} 失败:`, fetchError);
+            updateResultCard(resultCard, 'error', fileInfo, null, `获取失败: ${fetchError.message}`);
+            
+            completedTests++;
+            updateProgress(completedTests, `已完成 ${completedTests}/${totalTests} 个文件`);
+          });
+      }
+
+      // 创建结果卡片
+      function createResultCard(fileInfo, index) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-card p-4 transition-all-300';
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-gray-800 truncate">${fileInfo.name}</h3>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse mr-2"></div>
+              <span class="text-sm text-yellow-600">测试中</span>
+            </div>
+          </div>
+          <div class="text-sm text-gray-600 mb-3">
+            <div>路径: ${fileInfo.path}</div>
+            <div>状态: 准备测试...</div>
+          </div>
+          <div class="border-t pt-3">
+            <div class="text-center text-gray-500">
+              <i class="fa fa-spinner fa-spin text-2xl mb-2"></i>
+              <p>正在加载和解析文件...</p>
+            </div>
+          </div>
+        `;
+        return card;
+      }
+
+      // 更新结果卡片
+      function updateResultCard(card, status, fileInfo, divs = null, errorMessage = '') {
+        const statusBadge = card.querySelector('div.flex.items-center > div:first-child');
+        const statusText = card.querySelector('div.flex.items-center span');
+        const infoDiv = card.querySelector('div.text-sm.text-gray-600');
+        const contentDiv = card.querySelector('div.border-t');
+
+        if (status === 'success') {
+          // 成功状态
+          statusBadge.className = 'w-3 h-3 rounded-full bg-green-500 mr-2';
+          statusBadge.style.animation = 'none';
+          statusText.className = 'text-sm text-green-600';
+          statusText.textContent = '测试成功';
+          
+          infoDiv.innerHTML = `
+            <div>路径: ${fileInfo.path}</div>
+            <div>状态: 解析成功</div>
+            <div>页面数: ${divs.length} 页</div>
+          `;
+          
+          // 显示渲染内容
+          contentDiv.innerHTML = `
+            <div class="text-sm text-gray-600 mb-2">渲染预览:</div>
+            <div class="max-h-60 overflow-y-auto scrollbar-thin border rounded p-2 bg-gray-50">
+              ${divs.map(div => div.outerHTML).join('')}
+            </div>
+          `;
+          
+          // 添加缩放功能
+          const renderedDivs = contentDiv.querySelectorAll('div');
+          renderedDivs.forEach(renderedDiv => {
+            renderedDiv.style.transform = 'scale(0.8)';
+            renderedDiv.style.transformOrigin = 'top left';
+            renderedDiv.style.marginBottom = '10px';
+          });
+
+        } else if (status === 'error') {
+          // 错误状态
+          statusBadge.className = 'w-3 h-3 rounded-full bg-red-500 mr-2';
+          statusBadge.style.animation = 'none';
+          statusText.className = 'text-sm text-red-600';
+          statusText.textContent = '测试失败';
+          
+          infoDiv.innerHTML = `
+            <div>路径: ${fileInfo.path}</div>
+            <div>状态: 测试失败</div>
+          `;
+          
+          contentDiv.innerHTML = `
+            <div class="text-center text-red-500">
+              <i class="fa fa-exclamation-circle text-2xl mb-2"></i>
+              <p class="font-medium">测试失败</p>
+              <p class="text-sm mt-1">${errorMessage}</p>
+            </div>
+          `;
+        }
+      }
+
+      // 更新进度条
+      function updateProgress(completed, text) {
+        const percentage = totalTests > 0 ? (completed / totalTests) * 100 : 0;
+        progressBar.style.width = `${percentage}%`;
+        progressText.textContent = text;
+        
+        // 完成所有测试
+        if (completed >= totalTests) {
+          setTimeout(() => {
+            progressText.textContent = `🎉 测试完成! 成功测试 ${completed} 个文件`;
+            progressBar.className = 'bg-green-500 h-2.5 rounded-full transition-all duration-300';
+          }, 500);
+        }
+      }
+
+      // 页面加载完成检查
+      window.addEventListener('load', function() {
+        if (!window.ofd) {
+          console.error('❌ ofd.js库加载失败');
+          document.body.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-red-50">
+              <div class="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+                <i class="fa fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">加载失败</h2>
+                <p class="text-gray-600">无法加载 ofd.js 库，请检查文件路径是否正确。</p>
+                <p class="text-sm text-gray-500 mt-2">请确保 ./dist-manual-fixed-version/ofd.bundle-v3.js 文件存在</p>
+              </div>
+            </div>
+          `;
+        } else {
+          console.log('✅ ofd.js库加载成功');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
